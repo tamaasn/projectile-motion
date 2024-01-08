@@ -77,15 +77,13 @@ int main() {
 
     while (!quit) {
         while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = 1;
-            }
             switch(e.type){
               case SDL_KEYDOWN: 
                 switch(e.key.keysym.scancode){
                   case SDL_SCANCODE_SPACE: add_object();break;
                   default: break;
                 };break;
+              case SDL_QUIT: quit=1;break;
               default: break;
             }
                                       
