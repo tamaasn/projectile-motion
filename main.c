@@ -30,7 +30,6 @@ void add_object(){
       objects[i].time=0;
       objects[i].alive=1;
       objects[i].angle = (double)current_angle;
-      SDL_Log("angle : %f\nMouse X : %d\nMouse Y : %d" , objects[i].angle-360.0 , mouseX , mouseY);
       break;
     }
   }
