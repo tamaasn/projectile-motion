@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
 #include <math.h>
 
 #define PI 3.14159265
@@ -30,6 +31,7 @@ void add_object(){
       objects[i].time=0;
       objects[i].alive=1;
       objects[i].angle = (double)current_angle;
+     // SDL_Log("angle : %f\nMouse X : %d\nMouse Y : %d" , objects[i].angle-360.0 , mouseX , mouseY);
       break;
     }
   }
@@ -40,7 +42,7 @@ int main() {
     SDL_Renderer* renderer = NULL;
     
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         SDL_Log("SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
@@ -69,21 +71,34 @@ int main() {
     int quit = 0;
     double time = 0;
     SDL_Texture *font_texture=NULL;
+    
+    SDL_Surface *side_surface = IMG_Load("side.png");
+    SDL_Texture *side_texture = SDL_CreateTextureFromSurface(renderer , side_surface);
+    SDL_FreeSurface(side_surface);
+
     SDL_Rect font_rect;
     font_rect.x = 0;
     font_rect.y = 0;
     font_rect.w = 800;
     font_rect.h = 64;
+    
+    SDL_Rect side_rect;
+    side_rect.x = 0;
+    side_rect.y = SCREEN_HEIGHT-200;
+    side_rect.w = 8;
+    side_rect.h = 400;
 
     while (!quit) {
         while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                quit = 1;
+            }
             switch(e.type){
               case SDL_KEYDOWN: 
                 switch(e.key.keysym.scancode){
                   case SDL_SCANCODE_SPACE: add_object();break;
                   default: break;
                 };break;
-              case SDL_QUIT: quit=1;break;
               default: break;
             }
                                       
@@ -111,7 +126,11 @@ int main() {
             rect.h = 32;
           //  SDL_Log("x : %d" , (int)rect.x);
            // SDL_Log("y : %d\ntime : %f\n" , (int)rect.y , objects[i].time);
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            int r,g,b;
+            r = rand()%255;
+            g = rand()%255;
+            b = rand()%255;
+            SDL_SetRenderDrawColor(renderer, r, g, b, 0);
             SDL_RenderDrawRect(renderer , &rect);
             if (rect.y > SCREEN_HEIGHT){
               objects[i].alive=0;
@@ -119,7 +138,8 @@ int main() {
           }
           SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         }
-
+        SDL_RenderCopyEx(renderer , side_texture , NULL , &side_rect , 90.0-(double)current_angle , NULL , SDL_FLIP_VERTICAL);
+     //   SDL_RenderCopy(renderer , side_texture , NULL  ,&side_rect);
         SDL_RenderCopy(renderer , font_texture , NULL , &font_rect);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
@@ -127,6 +147,7 @@ int main() {
     }
 
     // Cleanup
+    SDL_DestroyTexture(side_texture);
     SDL_DestroyTexture(font_texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
